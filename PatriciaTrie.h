@@ -17,10 +17,10 @@ struct PTrie
         Node(unsigned testBit, const char* value)
             : m_TestBit(testBit)
             , m_DebugIndex(s_DebugIndex++)
+            , m_Value(value)
             , m_Left(nullptr)
             , m_Right(nullptr)
         {
-            m_Value = strdup(value);
         }
     };
     
