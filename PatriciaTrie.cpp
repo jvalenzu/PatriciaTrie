@@ -10,6 +10,8 @@
 // only works with string literals, string poolify
 // get rid of root node convention
 // "baked" API
+// can get rid of the memcmp in prefix searching if we bump up the testbit to character boundaries.
+// test ascii 7 bit instead of 8
 
 unsigned PTrie::Node::s_DebugIndex;
 
