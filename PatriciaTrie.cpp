@@ -60,7 +60,7 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, co
 // ------------------------------------------------------------------------------------------------
 const PTrie::Node* patricia_trie_search(const PTrie* ptrie, const char* key)
 {
-    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
+    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key, true);
     return found;
 }
 
@@ -144,31 +144,40 @@ void patricia_trie_insert(PTrie* ptrie, const char* key)
 static void patricia_trie_visit_internal(std::set<const PTrie::Node*> *seen,
                                          const PTrie::Node* node,
                                          const unsigned tb,
+                                         const char* key,
                                          void (*func)(const PTrie::Node*))
 {
-    if (node->m_TestBit < tb)
-    {
-        func(node);
-        return;
-    }
-    
     auto contains = [&seen](const PTrie::Node* node) -> bool
     {
         return seen->find(node) != seen->end();
     };
+
+#if 0
+    if (!strstr(node->m_Value, key))
+    {
+        __builtin_debugtrap();
+    }
+#endif
     
     seen->insert(node);
-
-    if (node->m_Left && !contains(node->m_Left))
+    
+    if (node->m_Left && node->m_Left->m_TestBit >= node->m_TestBit && !contains(node->m_Left))
     {
-        patricia_trie_visit_internal(seen, node->m_Left, tb, func);
+        // this is kind of a mess, but the idea is we're transitioning from a node with a testbit
+        // before a character boundary (say, "true" - 31) to one on the other side (say, "trudy" -
+        // 35).  true is a prefix of trudy up to bit 31, but "true" as a string has a boundary on 32
+        // which is not a prefix of trudy.
+        
+        if (!(node->m_TestBit < tb && !strstr(node->m_Left->m_Value, key)))
+            patricia_trie_visit_internal(seen, node->m_Left, tb, key, func);
     }
     
     func(node);
     
-    if (node->m_Right && !contains(node->m_Right))
+    if (node->m_Right && node->m_Right->m_TestBit >= node->m_TestBit && !contains(node->m_Right))
     {
-        patricia_trie_visit_internal(seen, node->m_Right, tb, func);
+        if (!(node->m_TestBit < tb && !strstr(node->m_Right->m_Value, key)))
+            patricia_trie_visit_internal(seen, node->m_Right, tb, key, func);
     }
 }
 
@@ -181,10 +190,10 @@ void patricia_trie_visit(const PTrie::Node* node, const char* key, void (*func)(
         std::set<const PTrie::Node*> seen;
 
         if (strstr(node->m_Value, key))
-            patricia_trie_visit_internal(&seen, node, min, func);
+            patricia_trie_visit_internal(&seen, node, min, key, func);
         else if (node->m_Left && strstr(node->m_Left->m_Value, key))
-            patricia_trie_visit_internal(&seen, node->m_Left, min, func);
+            patricia_trie_visit_internal(&seen, node->m_Left, min, key, func);
         else if (node->m_Right && strstr(node->m_Right->m_Value, key))
-            patricia_trie_visit_internal(&seen, node->m_Right, min, func);            
+            patricia_trie_visit_internal(&seen, node->m_Right, min, key, func);
     }
 }
