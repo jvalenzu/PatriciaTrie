@@ -26,7 +26,7 @@ void patricia_trie_fini(PTrie* ptrie)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, const char* key)
+static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, const char* key, bool exact = false)
 {
     const unsigned last_key_bit = 8 * strlen(key);
     const PTrie::Node* found = nullptr;
@@ -44,6 +44,12 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, co
             
             const bool goRight = get_bit(key, found->m_TestBit) ? true : false;
             const PTrie::Node* next = goRight ? found->m_Right : found->m_Left;
+
+            if (exact && next->m_TestBit >= last_key_bit)
+            {
+                return found;
+            }
+            
             found = next;
         }
     }
@@ -55,23 +61,14 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, co
 const PTrie::Node* patricia_trie_search(const PTrie* ptrie, const char* key)
 {
     const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
-    if (found && strstr(found->m_Value, key))
-        return found;
-    return nullptr;
+    return found;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool patricia_trie_exact_search(const PTrie* ptrie, const char* key)
 {
-    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
-    if (found)
-    {
-        const size_t len0 = strlen(key);
-        const size_t len1 = strlen(found->m_Value);
-        const size_t len2 = (len0 < len1) ? len0 : len1;
-        return !memcmp(found->m_Value, key, len2);
-    }
-    return false;
+    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key, true);
+    return found && !strcmp(found->m_Value, key);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -147,12 +144,11 @@ void patricia_trie_insert(PTrie* ptrie, const char* key)
 static void patricia_trie_visit_internal(std::set<const PTrie::Node*> *seen,
                                          const PTrie::Node* node,
                                          const unsigned tb,
-                                         const void* key, size_t key_size,
-                                         void (*func)(const void* key, size_t key_size, const PTrie::Node*))
+                                         void (*func)(const PTrie::Node*))
 {
     if (node->m_TestBit < tb)
     {
-        func(key, key_size, node);
+        func(node);
         return;
     }
     
@@ -165,24 +161,30 @@ static void patricia_trie_visit_internal(std::set<const PTrie::Node*> *seen,
 
     if (node->m_Left && !contains(node->m_Left))
     {
-        patricia_trie_visit_internal(seen, node->m_Left, tb, key, key_size, func);
+        patricia_trie_visit_internal(seen, node->m_Left, tb, func);
     }
     
-    func(key, key_size, node);
+    func(node);
     
     if (node->m_Right && !contains(node->m_Right))
     {
-        patricia_trie_visit_internal(seen, node->m_Right, tb, key, key_size, func);
+        patricia_trie_visit_internal(seen, node->m_Right, tb, func);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void patricia_trie_visit(const PTrie::Node* node, const void* key, size_t key_size, void (*func)(const void* key, size_t key_size, const PTrie::Node*))
+void patricia_trie_visit(const PTrie::Node* node, const char* key, void (*func)(const PTrie::Node*))
 {
     if (node)
     {
+        const unsigned min = strlen(key) * 8;
         std::set<const PTrie::Node*> seen;
-        const unsigned min = node->m_TestBit;
-        patricia_trie_visit_internal(&seen, node, min, key, key_size, func);
+
+        if (strstr(node->m_Value, key))
+            patricia_trie_visit_internal(&seen, node, min, func);
+        else if (node->m_Left && strstr(node->m_Left->m_Value, key))
+            patricia_trie_visit_internal(&seen, node->m_Left, min, func);
+        else if (node->m_Right && strstr(node->m_Right->m_Value, key))
+            patricia_trie_visit_internal(&seen, node->m_Right, min, func);            
     }
 }

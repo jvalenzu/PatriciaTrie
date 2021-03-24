@@ -176,13 +176,13 @@ void patricia_trie_test()
 
         puts("");
         
-        auto visitor = [](const void* key, size_t key_size, const PTrie::Node* node)
+        auto visitor = [](const PTrie::Node* node)
         {
             printf("NODE: %p %12s [l %p r %p]\n", node, node->m_Value, node->m_Left, node->m_Right);
         };
         
         puts("strings with prefix roma");
-        patricia_trie_visit(r8, "roma", 4, visitor);
+        patricia_trie_visit(r8, "roma", visitor);
         
         patricia_trie_fini(&ptrie);
     }

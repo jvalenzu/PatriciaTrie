@@ -76,10 +76,9 @@ int main(int argc, char* argv[])
                             const PTrie::Node* node = patricia_trie_search(&ptrie, text);
                             if (node)
                             {
-                                patricia_trie_visit(node, text, strlen(text), [](const void* key, size_t key_size, const PTrie::Node* node)
+                                patricia_trie_visit(node, text, [](const PTrie::Node* node)
                                 {
-                                    if (!memcmp(node->m_Value, key, key_size))
-                                        printf("%12s\n", node->m_Value);
+                                    printf("%12s\n", node->m_Value);
                                 });
                             }
                             else
