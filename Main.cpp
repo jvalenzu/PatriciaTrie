@@ -102,6 +102,14 @@ int main(int argc, char* argv[])
                     {
                         done = true;
                     }
+                    else if (!strncmp(line, "q", 4))
+                    {
+                        done = true;
+                    }
+                    else
+                    {
+                        printf("Unknown '%s'\n", line);
+                    }
                 }
             }
             
