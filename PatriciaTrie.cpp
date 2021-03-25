@@ -26,9 +26,9 @@ void patricia_trie_fini(PTrie* ptrie)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, const char* key, bool exact = false)
+static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, const char* key)
 {
-    const unsigned last_key_bit = 8 * strlen(key);
+    const unsigned last_key_bit = 8 * strlen(key) - 1;
     const PTrie::Node* found = nullptr;
     const PTrie::Node* parent = ptrie->m_Root;
     
@@ -38,18 +38,13 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, co
         
         found = parent->m_Left;
         
-        while (parent->m_TestBit < found->m_TestBit && found->m_TestBit <= last_key_bit)
+        while (parent->m_TestBit < found->m_TestBit && found->m_TestBit < last_key_bit)
         {
             parent = found;
             
             const bool goRight = get_bit(key, found->m_TestBit) ? true : false;
             const PTrie::Node* next = goRight ? found->m_Right : found->m_Left;
 
-            if (exact && next->m_TestBit >= last_key_bit)
-            {
-                return found;
-            }
-            
             found = next;
         }
     }
@@ -60,14 +55,14 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, co
 // ------------------------------------------------------------------------------------------------
 const PTrie::Node* patricia_trie_search(const PTrie* ptrie, const char* key)
 {
-    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key, true);
+    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
     return found;
 }
 
 // ------------------------------------------------------------------------------------------------
 bool patricia_trie_exact_search(const PTrie* ptrie, const char* key)
 {
-    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key, true);
+    const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
     return found && !strcmp(found->m_Value, key);
 }
 
