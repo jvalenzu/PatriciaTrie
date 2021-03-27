@@ -183,6 +183,11 @@ void patricia_trie_test()
         
         puts("strings with prefix roma");
         patricia_trie_visit(r8, "roma", visitor);
+
+        const bool roman_found = patricia_trie_exact_search(r8, "roman");
+        const bool rome_found = patricia_trie_exact_search(r8, "rome");
+        printf("exact search for 'roman' rooted at 'roma': %s\n", roman_found ? "FOUND" : "NOT FOUND");
+        printf("exact search for 'rome' rooted at 'roma': %s\n", rome_found ? "FOUND" : "NOT FOUND");
         
         patricia_trie_fini(&ptrie);
     }

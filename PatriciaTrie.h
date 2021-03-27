@@ -32,6 +32,8 @@ void               patricia_trie_fini(PTrie* ptrie);
 
 const PTrie::Node* patricia_trie_search(const PTrie* ptrie, const char* key);
 bool               patricia_trie_exact_search(const PTrie* ptrie, const char* key);
+// exact search, but use node instead of root
+bool               patricia_trie_exact_search(const PTrie::Node* node, const char* key);
 void               patricia_trie_insert(PTrie* ptrie, const char* key);
 
 void               patricia_trie_visit(const PTrie::Node* node, const char* key, void (*func)(const PTrie::Node*));

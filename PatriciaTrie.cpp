@@ -26,11 +26,10 @@ void patricia_trie_fini(PTrie* ptrie)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, const char* key)
+static const PTrie::Node* s_patricia_trie_search_internal(const PTrie::Node* parent, const char* key)
 {
     const unsigned last_key_bit = 8 * strlen(key) - 1;
     const PTrie::Node* found = nullptr;
-    const PTrie::Node* parent = ptrie->m_Root;
     
     {
         if (!parent)
@@ -53,6 +52,12 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, co
 }
 
 // ------------------------------------------------------------------------------------------------
+static const PTrie::Node* s_patricia_trie_search_internal(const PTrie* ptrie, const char* key)
+{
+    return s_patricia_trie_search_internal(ptrie->m_Root, key);
+}
+
+// ------------------------------------------------------------------------------------------------
 const PTrie::Node* patricia_trie_search(const PTrie* ptrie, const char* key)
 {
     const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
@@ -63,6 +68,13 @@ const PTrie::Node* patricia_trie_search(const PTrie* ptrie, const char* key)
 bool patricia_trie_exact_search(const PTrie* ptrie, const char* key)
 {
     const PTrie::Node* found = s_patricia_trie_search_internal(ptrie, key);
+    return found && !strcmp(found->m_Value, key);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool patricia_trie_exact_search(const PTrie::Node* node, const char* key)
+{
+    const PTrie::Node* found = s_patricia_trie_search_internal(node, key);
     return found && !strcmp(found->m_Value, key);
 }
 
