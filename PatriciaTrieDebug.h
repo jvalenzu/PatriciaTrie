@@ -1,5 +1,7 @@
 #pragma once
 
+struct PTrie;
+
 // testing
 void               patricia_trie_test();
 void               patricia_trie_debug_insert_strings(PTrie* ptrie, const char* fname);

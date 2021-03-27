@@ -1,5 +1,7 @@
 #include "PatriciaTrie.h"
 #include "PatriciaTrieDebug.h"
+#include "SuffixTree.h"
+#include "SuffixTreeDebug.h"
 
 #include "linenoise/linenoise.h"
 
@@ -47,16 +49,13 @@ int main(int argc, char* argv[])
 
     if (argc > 1 && !strcmp(argv[1], "--interactive"))
     {
-        const char* fname = "words";
-
-        patricia_trie_init(&ptrie);
-        patricia_trie_debug_insert_strings(&ptrie, fname);
-
         bool done = false;
         char* line = nullptr;
         while (!done && ((line = linenoise("$ ")) != nullptr)) {
             if (*line)
             {
+                patricia_trie_init(&ptrie);
+                
                 if (!strcmp(line, "help") || !strcmp(line, "?"))
                 {
                     puts("help");
@@ -68,7 +67,21 @@ int main(int argc, char* argv[])
                 {
                     linenoiseHistoryAdd(line);
                     
-                    if (!strncmp(line, "prefix ", 7))
+                    if (!strncmp(line, "dump", 4))
+                    {
+                        patricia_trie_dump(&ptrie);
+                    }
+                    else if (!strncmp(line, "load ", 5))
+                    {
+                        char* fname = line + 5;
+                        patricia_trie_debug_insert_strings(&ptrie, fname);
+                    }
+                    else if (!strncmp(line, "sload ", 6))
+                    {
+                        char* fname = line + 6;
+                        suffix_debug_insert_strings(&ptrie, fname);
+                    }
+                    else if (!strncmp(line, "prefix ", 7))
                     {
                         char* text = line + 7;
                         if (*text)

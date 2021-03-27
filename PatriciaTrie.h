@@ -10,13 +10,17 @@ struct PTrie
         static unsigned s_DebugIndex;
         unsigned m_TestBit;
         unsigned m_DebugIndex;
+        unsigned m_Count;
+        unsigned m_Pad;
+        
         const char* m_Value;
         struct Node* m_Left;
         struct Node* m_Right;
-
+        
         Node(unsigned testBit, const char* value)
             : m_TestBit(testBit)
             , m_DebugIndex(s_DebugIndex++)
+            , m_Count(1)
             , m_Value(value)
             , m_Left(nullptr)
             , m_Right(nullptr)

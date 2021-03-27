@@ -58,8 +58,8 @@ void patricia_trie_dump(const PTrie* ptrie)
             debug_label(display_label, sizeof display_label, node->m_DebugIndex);
         }
         
-        printf("    %s [ label = \"<f0> %s | <f1> testBit: %d | <f2> value:'%s' \n bits: %s\" ]\n",
-               label, display_label, node->m_TestBit, node->m_Value, bitstring1(node->m_Value));
+        printf("    %s [ label = \"<f0> %s | <f1> testBit: %d | <f3> count %d | <f2> value:'%s' \n bits: %s\" ]\n",
+               label, display_label, node->m_TestBit, node->m_Count, node->m_Value, bitstring1(node->m_Value));
         
         printf("    %s:f0 -> %s [ tailport=sw %s ] \n", label, left_label,
                (node->m_Left->m_DebugIndex < node->m_DebugIndex) ? "headport=w" : "");
@@ -205,6 +205,8 @@ void patricia_trie_debug_insert_strings(PTrie* ptrie, const char* fname)
         while ((line_length = getline(&line, &line_cap, fh)) > 0)
         {
             line[line_length-1] = '\0';
+            if (line[line_length-2] == '\r')
+                line[line_length-2] = '\0';
             patricia_trie_insert(ptrie, line);
             free(line);
             line = nullptr;

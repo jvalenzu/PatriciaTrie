@@ -116,6 +116,7 @@ void patricia_trie_insert(PTrie* ptrie, const char* key)
     while (parent->m_TestBit < child->m_TestBit && child->m_TestBit < differingBit)
     {
         parent = child;
+        parent->m_Count++;
         
         const bool goRight = get_bit(key, child->m_TestBit) ? true : false;
         child = goRight ? child->m_Right : child->m_Left;

@@ -16,6 +16,8 @@ LIBRARIES += -framework Cocoa
 # C++ source code to object files
 SRCS += PatriciaTrieDebug.cpp
 SRCS += PatriciaTrie.cpp
+SRCS += SuffixTreeDebug.cpp
+SRCS += SuffixTree.cpp
 SRCS += Main.cpp
 SRCS += Util.cpp
 
@@ -32,7 +34,7 @@ PatriciaTrie : $(OBJS) Makefile
 # 	pic Patricia.roff | groff -rN4 -t -mmm - | ps2pdf - > Patricia.pdf
 
 Patricia.dot: PatriciaTrie
-	./PatriciaTrie --dot test_strings_r.txt > Patricia.dot
+	./PatriciaTrie --dot swords > Patricia.dot
 
 Patricia.png: Makefile Patricia.dot
 	dot Patricia.dot -Tpng > $@
