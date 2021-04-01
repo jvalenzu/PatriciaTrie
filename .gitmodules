@@ -1,0 +1,3 @@
+[submodule "External/xxhashct"]
+	path = External/xxhashct
+	url = https://github.com/ekpyron/xxhashct.git

@@ -2,12 +2,14 @@
 #include "PatriciaTrieDebug.h"
 #include "SuffixTree.h"
 #include "SuffixTreeDebug.h"
+#include "Util.h"
 
 #include "linenoise/linenoise.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <vector>
 
 int main(int argc, char* argv[])
 {
@@ -67,7 +69,11 @@ int main(int argc, char* argv[])
                 {
                     linenoiseHistoryAdd(line);
                     
-                    if (!strncmp(line, "dump", 4))
+                    std::vector<token> tokens;
+                    split_line(&tokens, line);
+
+                    const uint32_t dump_hash = hash("dump");
+                    if (tokens[0].m_Hash == dump_hash)
                     {
                         patricia_trie_dump(&ptrie);
                     }

@@ -7,6 +7,44 @@
 #include <stack>
 #include <set>
 
+
+// ------------------------------------------------------------------------------------------------
+char* bitstring(char* dest, size_t len, const char* str, size_t min = 0);
+
+template<int len>
+static char* bitstring(char (&dest)[len], const char* str, size_t min = 0)
+{
+    return bitstring(dest, len, str, min);
+}
+
+
+// ------------------------------------------------------------------------------------------------
+char* bitstring(char* dest, size_t len, const char* str, size_t min)
+{
+    char* base = dest;
+    char c;
+    while (c = *str++)
+    {
+        for (int i=0; i<8; ++i)
+        {
+            *dest++ = c&0x80 ? '1' : '0';
+            c <<= 1;
+        }
+    }
+    
+    if (min)
+    {
+        for (int i = (dest - base)/8; i<min; ++i)
+        {
+            strcpy(dest, "00000000");
+            dest += 8;
+        }
+    }
+    
+    *dest = '\0';
+    return base;
+}
+
 // ------------------------------------------------------------------------------------------------
 static void debug_label(char* display_label, size_t max, unsigned debug_index)
 {
@@ -34,9 +72,9 @@ void patricia_trie_dump(const PTrie* ptrie)
     };
     
     auto add_attribute = [string_format,ptrie](const PTrie::Node* node) {
-        char label[32];
-        char left_label[32];
-        char right_label[32];
+        char label[64];
+        char left_label[64];
+        char right_label[64];
         char buf[128];
         
         auto bitstring1 = [&buf](const char* str)
