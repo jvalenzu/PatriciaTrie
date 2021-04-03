@@ -34,7 +34,8 @@ PatriciaTrie : $(OBJS) Makefile
 # 	pic Patricia.roff | groff -rN4 -t -mmm - | ps2pdf - > Patricia.pdf
 
 Patricia.dot: PatriciaTrie
-	./PatriciaTrie --dot swords > Patricia.dot
+#	./PatriciaTrie --dot swords > Patricia.dot
+	./PatriciaTrie --dot shwords > Patricia.dot
 
 Patricia.png: Makefile Patricia.dot
 	dot Patricia.dot -Tpng > $@
