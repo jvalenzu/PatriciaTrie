@@ -237,14 +237,25 @@ void patricia_trie_debug_insert_strings(PTrie* ptrie, const char* fname)
     FILE* fh = fopen(fname, "rt");
     if (fh)
     {
+        const char* sep = " \r\n";
+        const size_t sep_len = strlen(sep);
+        auto is_sep = [sep, sep_len](char c)
+        {
+            for (int i = 0; i < sep_len; ++i)
+            {
+                if (sep[i] == c)
+                    return true;
+            }
+            return false;
+        };
+        
         char* line = nullptr;
         ssize_t line_length;
         size_t line_cap;
         while ((line_length = getline(&line, &line_cap, fh)) > 0)
         {
-            line[line_length-1] = '\0';
-            if (line[line_length-2] == '\r')
-                line[line_length-2] = '\0';
+            while (is_sep(line[line_length-1]))
+                line[--line_length] = '\0';
             patricia_trie_insert(ptrie, line);
             free(line);
             line = nullptr;
