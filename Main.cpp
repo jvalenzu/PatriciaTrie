@@ -71,21 +71,30 @@ int main(int argc, char* argv[])
                     
                     std::vector<token> tokens;
                     split_line(&tokens, line);
-
+                    
+                    const uint32_t insert_hash = hash("insert");
                     const uint32_t dump_hash = hash("dump");
+                    const uint32_t load_hash = hash("load");
+                    const uint32_t sload_hash = hash("sload");
                     if (tokens[0].m_Hash == dump_hash)
                     {
                         patricia_trie_dump(&ptrie);
                     }
-                    else if (!strncmp(line, "load ", 5))
+                    else if (tokens[0].m_Hash == insert_hash)
                     {
-                        char* fname = line + 5;
-                        patricia_trie_debug_insert_strings(&ptrie, fname);
+                        patricia_trie_insert(&ptrie, tokens[1].m_Value);
                     }
-                    else if (!strncmp(line, "sload ", 6))
+                    else if (tokens[0].m_Hash == insert_hash)
                     {
-                        char* fname = line + 6;
-                        suffix_debug_insert_strings(&ptrie, fname);
+                        patricia_trie_insert(&ptrie, tokens[1].m_Value);
+                    }
+                    else if (tokens[0].m_Hash == load_hash)
+                    {
+                        patricia_trie_debug_insert_strings(&ptrie, tokens[1].m_Value);
+                    }
+                    else if (tokens[0].m_Hash == sload_hash)
+                    {
+                        suffix_debug_insert_strings(&ptrie, tokens[1].m_Value);
                     }
                     else if (!strncmp(line, "prefix ", 7))
                     {
