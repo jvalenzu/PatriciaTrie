@@ -28,12 +28,16 @@ void patricia_trie_fini(PTrie* ptrie)
 // ------------------------------------------------------------------------------------------------
 static const PTrie::Node* s_patricia_trie_search_internal(const PTrie::Node* parent, const char* key)
 {
-    const unsigned last_key_bit = 8 * strlen(key) - 1;
+    const unsigned last_key_bit = 8 * strlen(key);
     const PTrie::Node* found = nullptr;
     
     {
         if (!parent)
             return nullptr;
+        
+        // check root
+        if (!strcmp(parent->m_Value, key))
+            return parent;
         
         found = parent->m_Left;
         
@@ -43,7 +47,7 @@ static const PTrie::Node* s_patricia_trie_search_internal(const PTrie::Node* par
             
             const bool goRight = get_bit(key, found->m_TestBit) ? true : false;
             const PTrie::Node* next = goRight ? found->m_Right : found->m_Left;
-
+            
             found = next;
         }
     }
@@ -88,16 +92,18 @@ void patricia_trie_insert(PTrie* ptrie, const char* key)
         return;
     
     {
-        char* v = strdup(key);
-        for (int i = strlen(key); i>0; --i)
+        const size_t len = strlen(key);
+        char* v = (char*) malloc(len + 1);
+        for (int i = len-1; i>=0; --i)
         {
-            char c = tolower(v[i]);
+            const char c = tolower(key[i]);
             if (isalpha(c))
                 v[i] = c;
             else
                 v[i] = '\0';
         }
-        
+        v[len] = '\0';
+
         key = v;
     }
     
@@ -116,7 +122,6 @@ void patricia_trie_insert(PTrie* ptrie, const char* key)
     while (parent->m_TestBit < child->m_TestBit && child->m_TestBit < differingBit)
     {
         parent = child;
-        parent->m_Count++;
         
         const bool goRight = get_bit(key, child->m_TestBit) ? true : false;
         child = goRight ? child->m_Right : child->m_Left;
